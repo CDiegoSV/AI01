@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Dante.Agents
@@ -20,7 +21,7 @@ namespace Dante.Agents
     {
         #region References
 
-        [SerializeField] Animator animator;
+        [SerializeField] protected Animator _animator;
 
         #endregion
 
@@ -30,16 +31,33 @@ namespace Dante.Agents
 
         #endregion
 
+        #region Public Methods
+
         public void EnteredState(States value)
         {
             Debug.Log("FSM - EnteredState(): Entered the finite state " +  value.ToString());
             _currentState = value;
+            Invoke("CleanAnimatorValues", 0.1f);
         }
 
         public void StateMechanic(StateMechanics value)
         {
-            animator.SetBool(value.ToString(), true);
+            _animator.SetBool(value.ToString(), true);
         }
+
+        #endregion
+
+        #region Local Methods
+
+        protected void CleanAnimatorValues()
+        {
+            foreach (StateMechanics state in (StateMechanics[])Enum.GetValues(typeof(StateMechanics)))
+            {
+                _animator.SetBool(state.ToString(), false);
+            }
+        }
+
+        #endregion
     }
 
 }
