@@ -37,7 +37,8 @@ namespace Dante.Agents
         {
             Debug.Log("FSM - EnteredState(): Entered the finite state " +  value.ToString());
             _currentState = value;
-            Invoke("CleanAnimatorValues", 0.1f);
+            //Invoke("CleanAnimatorValues", 0.1f);
+            CleanAnimatorValues();
         }
 
         public void StateMechanic(StateMechanics value)

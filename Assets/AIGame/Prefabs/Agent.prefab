@@ -714,6 +714,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3e88f7191db34f458d1c94619f91f9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _movementSpeed: 5
+  _rigidbody: {fileID: 3706965312070166432}
+  _fsm: {fileID: 5472343901374322933}
 --- !u!95 &7984288676430554500
 Animator:
   serializedVersion: 7
@@ -784,7 +787,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!1 &6455439811321984842
 GameObject:
