@@ -17,18 +17,13 @@ namespace Dante.Agents
 
         #region UnityMethods
 
-        void Start()
-        {
-            
-        }
-
         private void FixedUpdate()
         {
-            _rigidbody.linearVelocity = _movementDirection * _currentMovementSpeed;
+            RigidbodyMovement();
 
             if(_movementDirection != Vector3.zero)
             {
-                _rigidbody.rotation = Quaternion.Lerp(_rigidbody.rotation, Quaternion.LookRotation(_movementDirection), 5 * Time.fixedDeltaTime);
+                RigidbodyRotation();
             }
         }
 

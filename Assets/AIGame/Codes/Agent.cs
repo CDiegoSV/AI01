@@ -28,19 +28,29 @@ namespace Dante.Agents
 
         #region UnityMethods
 
-        void Start()
-        {
+        //void Start()
+        //{
         
-        }
+        //}
 
-        void Update()
-        {
+        //void Update()
+        //{
         
-        }
+        //}
 
         #endregion
 
         #region Local Methods
+
+        protected void RigidbodyMovement()
+        {
+            _rigidbody.linearVelocity = _movementDirection * _currentMovementSpeed;
+        }
+
+        protected void RigidbodyRotation()
+        {
+            _rigidbody.rotation = Quaternion.Lerp(_rigidbody.rotation, Quaternion.LookRotation(_movementDirection), 5 * Time.fixedDeltaTime);
+        }
 
         #endregion
     }
