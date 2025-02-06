@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fcc848b1a652ae34ead063a51ca70d3c, type: 3}
-  m_Name: EnemyNPC_SO_02
+  m_Name: EnemyNPC_SO_04
   m_EditorClassIdentifier: 
   patrolBehaviours:
   - stateMechanic: 1
@@ -26,8 +26,8 @@ MonoBehaviour:
     destinyDirection: {x: 0, y: 0, z: 0}
     durationTime: 0
   visionConeParameters:
-    distance: 4
-    fieldOfView: 50
+    distance: 5
+    fieldOfView: 60
   spawnParameters:
-    position: {x: -1, y: 0, z: -8}
+    position: {x: 8.5, y: 0, z: -2.5}
     rotation: {x: 0, y: 0, z: 0}

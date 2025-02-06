@@ -26,8 +26,8 @@ MonoBehaviour:
     destinyDirection: {x: 0, y: 0, z: 0}
     durationTime: 0
   visionConeParameters:
-    distance: 2
-    fieldOfView: 50
+    distance: 10
+    fieldOfView: 80
   spawnParameters:
-    position: {x: 2, y: 0, z: 2}
-    rotation: {x: 0, y: 0, z: 0}
+    position: {x: -1.5, y: 0, z: -3.5}
+    rotation: {x: 0, y: -90, z: 0}
