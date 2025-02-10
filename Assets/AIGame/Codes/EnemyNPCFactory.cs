@@ -37,6 +37,7 @@ namespace Dante.Agents
                 _enemyInstanceGameObject.transform.position = enemy.spawnParameters.position;
                 _enemyInstanceGameObject.transform.localRotation = Quaternion.Euler(enemy.spawnParameters.rotation);
                 _enemyInstanceGameObject.GetComponent<EnemyNPC>().enemyNPC_Behaviours = enemy;
+                
 
                 enemyInstancesGameObjects.Add(_enemyInstanceGameObject);
 
@@ -65,6 +66,7 @@ namespace Dante.Agents
                 for (int i = 0; i < (enemyNPC_SO.visionConeParameters.fieldOfView * 0.1f) -1; i++)
                 {
                     _currentVisionCone = Instantiate(visionConePrefab, _enemyInstanceGameObject.transform.GetChild(2));
+                    _currentVisionCone.GetComponent<Enemy_NPC_VisionCones>().enemyNPC = _enemyInstanceGameObject.GetComponent<EnemyNPC>();
                     _currentEnemyVisionCones.Add(_currentVisionCone);
                 }
                 int signIterator = 1;

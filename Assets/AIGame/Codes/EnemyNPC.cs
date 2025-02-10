@@ -12,6 +12,12 @@ namespace Dante.Agents
 
         #endregion
 
+        #region References
+
+        [SerializeField] protected GameManager _gameManager;
+
+        #endregion
+
         #region Local Variables
 
         protected PatrolBehaviours _currentPatrolBehaviour;
@@ -24,6 +30,9 @@ namespace Dante.Agents
 
         protected int _currentEnemyBehaviourIndex;
         protected Coroutine _enemyBehaviourCoroutine;
+
+        protected LayerMask _obstacleLayerMask;
+        protected LayerMask _playerLayerMask;
 
         #endregion
 
@@ -91,6 +100,9 @@ namespace Dante.Agents
 
         protected override void InitializeAgent()
         {
+            _obstacleLayerMask = LayerMask.GetMask("Obstacle");
+            _playerLayerMask = LayerMask.GetMask("Avatar");
+
             InitializePatrolBehaviour();
         }
 
@@ -195,6 +207,28 @@ namespace Dante.Agents
         }
 
         #endregion
+
+        #endregion
+
+        #region PublicMethods
+
+        public void VerifyCollisionOfPlayerAvatar(Transform playerAvatarTransform)
+        {
+            if (Physics.Raycast(transform.position, (playerAvatarTransform.position -  transform.position).normalized, out RaycastHit hit,
+                Vector3.Distance(transform.position, playerAvatarTransform.position),  _obstacleLayerMask))
+            {
+                Debug.DrawRay(transform.position, (playerAvatarTransform.position - transform.position).normalized * hit.distance, Color.yellow);
+                Debug.Log("Raycast hit an obstacle.");
+            }
+            else if(Physics.Raycast(transform.position, (playerAvatarTransform.position - transform.position).normalized,
+                Vector3.Distance(transform.position, playerAvatarTransform.position), _playerLayerMask))
+            {
+                Debug.DrawRay(transform.position, (playerAvatarTransform.position - transform.position).normalized * hit.distance, Color.red);
+                Debug.Log("Raycast hit the player.");
+                
+            }
+
+        }
 
         #endregion
 
