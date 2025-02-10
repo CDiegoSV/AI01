@@ -35,7 +35,8 @@ namespace Dante.Agents
             {
                 _enemyInstanceGameObject = Instantiate(enemyPrefab, this.gameObject.transform);
                 _enemyInstanceGameObject.transform.position = enemy.spawnParameters.position;
-                _enemyInstanceGameObject.transform.rotation = Quaternion.Euler(enemy.spawnParameters.rotation);
+                _enemyInstanceGameObject.transform.localRotation = Quaternion.Euler(enemy.spawnParameters.rotation);
+                _enemyInstanceGameObject.GetComponent<EnemyNPC>().enemyNPC_Behaviours = enemy;
 
                 enemyInstancesGameObjects.Add(_enemyInstanceGameObject);
 

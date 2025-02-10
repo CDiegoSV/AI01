@@ -1,16 +1,27 @@
 using UnityEngine;
 
 
-
-public class GameManager : MonoBehaviour
+namespace Dante.Agents
 {
-    void Start()
+    #region enums
+
+    public enum GameStates
     {
-        
+        NONE, GAME, VICTORY, DEFEAT, PAUSE
     }
 
-    void Update()
+    #endregion
+
+    public class GameManager : MonoBehaviour
     {
-        
+        void Start()
+        {
+
+        }
+
+        void Update()
+        {
+
+        }
     }
 }

@@ -13,21 +13,25 @@ MonoBehaviour:
   m_Name: EnemyNPC_SO_04
   m_EditorClassIdentifier: 
   patrolBehaviours:
-  - stateMechanic: 1
-    speed: 4
-    destinyDirection: {x: 0, y: 0, z: 1}
-    durationTime: 5
   - stateMechanic: 0
     speed: 0
     destinyDirection: {x: 0, y: 0, z: 0}
-    durationTime: 0
+    durationTime: 3
   - stateMechanic: 2
     speed: 0
     destinyDirection: {x: 0, y: 0, z: 0}
-    durationTime: 0
+    durationTime: 2
+  - stateMechanic: 0
+    speed: 0
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: 5
+  - stateMechanic: 2
+    speed: 0
+    destinyDirection: {x: 0, y: -180, z: 0}
+    durationTime: 4
   visionConeParameters:
     distance: 5
     fieldOfView: 60
   spawnParameters:
     position: {x: 8.5, y: 0, z: -2.5}
-    rotation: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: -180, z: 0}
