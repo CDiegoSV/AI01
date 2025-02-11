@@ -16,6 +16,7 @@ namespace Dante.Agents
 
         protected PlayerInput _playerInput;
         [SerializeField] protected PlayersAvatar _playersAvatar;
+        [SerializeField] protected GameManager _gameManager;
 
         #endregion
 
@@ -43,6 +44,10 @@ namespace Dante.Agents
             _playersAvatar?.OnMOVE(value);
         }
 
+        public void OnPause(InputAction.CallbackContext value)
+        {
+            _gameManager?.OnPAUSE(value);
+        }
 
         #endregion
     }

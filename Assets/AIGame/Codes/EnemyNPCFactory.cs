@@ -14,6 +14,7 @@ namespace Dante.Agents
 
         [Header("Runtime Variables")]
         [SerializeField] protected List<GameObject> enemyInstancesGameObjects;
+        [SerializeField] protected GameManager gameManager;
         
         #endregion
 
@@ -22,7 +23,7 @@ namespace Dante.Agents
         protected GameObject _enemyInstanceGameObject;
 
         protected GameObject _currentVisionCone;
-        [SerializeField] protected List<GameObject> _currentEnemyVisionCones;
+        protected List<GameObject> _currentEnemyVisionCones;
 
         #endregion
 
@@ -30,6 +31,7 @@ namespace Dante.Agents
 
         public void CreateEnemies()
         {
+            gameManager.enemyNPCs.Clear();
             DeleteEnemies();
             foreach (EnemyNPC_SO enemy in enemiesScriptableObject)
             {
@@ -37,7 +39,8 @@ namespace Dante.Agents
                 _enemyInstanceGameObject.transform.position = enemy.spawnParameters.position;
                 _enemyInstanceGameObject.transform.localRotation = Quaternion.Euler(enemy.spawnParameters.rotation);
                 _enemyInstanceGameObject.GetComponent<EnemyNPC>().enemyNPC_Behaviours = enemy;
-                
+                _enemyInstanceGameObject.GetComponent<EnemyNPC>().GameManager = gameManager;
+                gameManager.enemyNPCs.Add(_enemyInstanceGameObject.GetComponent<EnemyNPC>());
 
                 enemyInstancesGameObjects.Add(_enemyInstanceGameObject);
 

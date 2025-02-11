@@ -14,7 +14,7 @@ namespace Dante.Agents
 
         #region References
 
-        [SerializeField] protected GameManager _gameManager;
+        protected GameManager _gameManager;
 
         #endregion
 
@@ -225,7 +225,7 @@ namespace Dante.Agents
             {
                 Debug.DrawRay(transform.position, (playerAvatarTransform.position - transform.position).normalized * hit.distance, Color.red);
                 Debug.Log("Raycast hit the player.");
-                
+                _gameManager.StateMechanic(GameStates.DEFEAT);
             }
 
         }
@@ -293,5 +293,14 @@ namespace Dante.Agents
         #endregion
 
         #endregion SubstateMachineStates
+
+        #region GettersSetters
+
+        public GameManager GameManager
+        {
+            set { _gameManager = value; }
+        }
+
+        #endregion
     }
 }
