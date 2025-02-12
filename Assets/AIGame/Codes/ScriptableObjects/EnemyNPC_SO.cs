@@ -10,7 +10,6 @@ namespace Dante.Agents
     public struct PatrolBehaviours
     {
         public StateMechanics stateMechanic;
-        public float speed;
         [SerializeField] public Vector3 destinyDirection;
         public float durationTime;
     }
@@ -35,6 +34,8 @@ namespace Dante.Agents
     public class EnemyNPC_SO : ScriptableObject
     {
         [SerializeField] public PatrolBehaviours[] patrolBehaviours;
+
+        [SerializeField] public MoveWaypoints_SO moveWaypoints_SO;
 
         [SerializeField] public VisionConeParameters visionConeParameters;
 

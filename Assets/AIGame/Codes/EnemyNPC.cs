@@ -20,7 +20,7 @@ namespace Dante.Agents
 
         #region Local Variables
 
-        protected PatrolBehaviours _currentPatrolBehaviour;
+        [SerializeField] protected PatrolBehaviours _currentPatrolBehaviour;
 
         protected Quaternion _startRotation;
         protected Quaternion _endRotation;
@@ -33,6 +33,10 @@ namespace Dante.Agents
 
         protected LayerMask _obstacleLayerMask;
         protected LayerMask _playerLayerMask;
+
+        [SerializeField] protected int _currentWaypointIndex;
+        protected Vector3 _originWaypoint;
+        protected Vector3 _destinyWaypoint;
 
         #endregion
 
@@ -102,6 +106,8 @@ namespace Dante.Agents
         {
             _obstacleLayerMask = LayerMask.GetMask("Obstacle");
             _playerLayerMask = LayerMask.GetMask("Avatar");
+
+            _currentWaypointIndex = 0;
 
             InitializePatrolBehaviour();
         }
@@ -239,11 +245,43 @@ namespace Dante.Agents
         protected void InitializeMoveSubStateMachine()
         {
             _fsm.StateMechanic(StateMechanics.MOVE);
+            _originWaypoint = transform.position;
+            _destinyWaypoint = enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint;
+            _movementDirection = (_destinyWaypoint - _originWaypoint).normalized;
+            _currentMovementSpeed = enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].speedMPS;
         }
 
         protected void ExecutingMoveSubStateMachine()
         {
+            if (enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypointState == WaypointState.Moving &&
+                Vector3.Distance(transform.position, enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint) > 0.1f)
+            {
+                if(_rigidbody.linearVelocity != _movementDirection * _currentMovementSpeed)
+                {
+                    RigidbodyMovement();
+                }
+            }
+            else if (enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypointState == WaypointState.Moving &&
+                Vector3.Distance(transform.position, enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint) <= 0.1f)
+            {
+                if (_currentWaypointIndex + 1 >= enemyNPC_Behaviours.moveWaypoints_SO.waypoints.Length)
+                {
+                    _currentWaypointIndex = 0;
+                    GoToNextEnemyBehaviour();
+                }
+                _currentWaypointIndex++;
+                _originWaypoint = _destinyWaypoint;
+                _destinyWaypoint = enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint;
+                _movementDirection = (_destinyWaypoint - _originWaypoint).normalized;
+                _currentMovementSpeed = enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].speedMPS;
+            }
+            else if (enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypointState == WaypointState.PauseWaypoint)
+            {
+                _currentWaypointIndex++;
 
+                GoToNextEnemyBehaviour();
+            }
+            
         }
 
         protected void FinalizeMoveSubStateMachine()

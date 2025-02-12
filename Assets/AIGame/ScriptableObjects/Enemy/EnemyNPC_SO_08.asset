@@ -14,20 +14,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patrolBehaviours:
   - stateMechanic: 1
-    speed: 4
-    destinyDirection: {x: 0, y: 0, z: 1}
-    durationTime: 5
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
   - stateMechanic: 0
-    speed: 0
     destinyDirection: {x: 0, y: 0, z: 0}
-    durationTime: 0
-  - stateMechanic: 2
-    speed: 0
+    durationTime: 0.5
+  - stateMechanic: 1
     destinyDirection: {x: 0, y: 0, z: 0}
-    durationTime: 0
+    durationTime: -1
+  - stateMechanic: 0
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: 1
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  - stateMechanic: 0
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: 1.5
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  - stateMechanic: 0
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: 2
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  - stateMechanic: 0
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: 3.5
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  - stateMechanic: 1
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: -1
+  moveWaypoints_SO: {fileID: 11400000, guid: 24576c6f7121f804ebe968dac8438573, type: 2}
   visionConeParameters:
     distance: 11
     fieldOfView: 90
   spawnParameters:
-    position: {x: 35.5, y: 0, z: -2.5}
+    position: {x: 33.5, y: 0, z: -2.5000002}
     rotation: {x: 0, y: -90, z: 0}

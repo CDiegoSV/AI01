@@ -14,20 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patrolBehaviours:
   - stateMechanic: 1
-    speed: 4
-    destinyDirection: {x: 0, y: 0, z: 1}
-    durationTime: 5
-  - stateMechanic: 0
-    speed: 0
     destinyDirection: {x: 0, y: 0, z: 0}
-    durationTime: 0
-  - stateMechanic: 2
-    speed: 0
-    destinyDirection: {x: 0, y: 0, z: 0}
-    durationTime: 0
+    durationTime: -1
+  moveWaypoints_SO: {fileID: 11400000, guid: 5b850db8b42dcc04885afbd80d88b399, type: 2}
   visionConeParameters:
     distance: 13
     fieldOfView: 90
   spawnParameters:
-    position: {x: 28.5, y: 0, z: -4.5}
+    position: {x: 26.5, y: 0, z: -4.5}
     rotation: {x: 0, y: -90, z: 0}
