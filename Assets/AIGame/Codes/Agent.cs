@@ -50,6 +50,11 @@ namespace Dante.Agents
         protected void RigidbodyMovement()
         {
             _rigidbody.linearVelocity = _movementDirection * _currentMovementSpeed;
+
+            if (_movementDirection != Vector3.zero)
+            {
+                RigidbodyRotation();
+            }
         }
 
         /// <summary>

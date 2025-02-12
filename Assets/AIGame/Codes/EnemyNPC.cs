@@ -14,7 +14,7 @@ namespace Dante.Agents
 
         #region References
 
-        protected GameManager _gameManager;
+        [SerializeField] protected GameManager _gameManager;
 
         #endregion
 

@@ -28,11 +28,6 @@ namespace Dante.Agents
         private void FixedUpdate()
         {
             RigidbodyMovement();
-
-            if(_movementDirection != Vector3.zero)
-            {
-                RigidbodyRotation();
-            }
         }
 
         #endregion

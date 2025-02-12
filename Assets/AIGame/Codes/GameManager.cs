@@ -73,11 +73,19 @@ namespace Dante.Agents
                     break;
 
                 case GameStates.VICTORY:
-
+                    if (nextState == GameStates.GAME)
+                    {
+                        ProceedToNextState(nextState);
+                    }
+                    break;
                 case GameStates.DEFEAT:
-
+                    if(nextState == GameStates.GAME)
+                    {
+                        ProceedToNextState(nextState);
+                    }
+                    break;
                 case GameStates.PAUSE:
-                    if (_currentState == GameStates.GAME)
+                    if (_currentState == GameStates.GAME || _currentState == GameStates.PAUSE)
                     {
                         ProceedToNextState(nextState);
                     }
@@ -194,7 +202,8 @@ namespace Dante.Agents
 
         protected void InitializeDefeatState()
         {
-
+            PlayerReturnToSpawn();
+            StateMechanic(GameStates.GAME);
         }
 
         protected void FinalizeDefeatState()
