@@ -19,16 +19,24 @@ MonoBehaviour:
     durationTime: 3
   - stateMechanic: 2
     speed: 0
-    destinyDirection: {x: 0, y: 0, z: 0}
+    destinyDirection: {x: 0, y: 1, z: 0}
     durationTime: 2
+  - stateMechanic: 2
+    speed: 0
+    destinyDirection: {x: 0, y: 0, z: 0}
+    durationTime: 0.1
   - stateMechanic: 0
     speed: 0
     destinyDirection: {x: 0, y: 0, z: 0}
     durationTime: 5
   - stateMechanic: 2
     speed: 0
-    destinyDirection: {x: 0, y: 180, z: 0}
+    destinyDirection: {x: 0, y: -179, z: 0}
     durationTime: 4
+  - stateMechanic: 2
+    speed: 0
+    destinyDirection: {x: 0, y: 180, z: 0}
+    durationTime: 0.1
   visionConeParameters:
     distance: 5
     fieldOfView: 60
