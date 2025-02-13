@@ -138,6 +138,8 @@ namespace Dante.Agents
 
         protected virtual void GoToNextEnemyBehaviour()
         {
+            Debug.Log("Entró a GoToNextEnemyBehaviour");
+
             _currentEnemyBehaviourIndex++;
             if(_currentEnemyBehaviourIndex >= enemyNPC_Behaviours.patrolBehaviours.Length)
             {
@@ -264,21 +266,25 @@ namespace Dante.Agents
             else if (enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypointState == WaypointState.Moving &&
                 Vector3.Distance(transform.position, enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint) <= 0.1f)
             {
-                if (_currentWaypointIndex + 1 >= enemyNPC_Behaviours.moveWaypoints_SO.waypoints.Length)
+                if (_currentWaypointIndex +1 >= enemyNPC_Behaviours.moveWaypoints_SO.waypoints.Length)
                 {
                     _currentWaypointIndex = 0;
+                    FinalizeSubStateMachine();
                     GoToNextEnemyBehaviour();
                 }
-                _currentWaypointIndex++;
-                _originWaypoint = _destinyWaypoint;
-                _destinyWaypoint = enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint;
-                _movementDirection = (_destinyWaypoint - _originWaypoint).normalized;
-                _currentMovementSpeed = enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].speedMPS;
+                else
+                {
+                    _currentWaypointIndex++;
+                    _originWaypoint = _destinyWaypoint;
+                    _destinyWaypoint = enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint;
+                    _movementDirection = (_destinyWaypoint - _originWaypoint).normalized;
+                    _currentMovementSpeed = enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].speedMPS;
+                }
             }
             else if (enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypointState == WaypointState.PauseWaypoint)
             {
                 _currentWaypointIndex++;
-
+                FinalizeSubStateMachine();
                 GoToNextEnemyBehaviour();
             }
             

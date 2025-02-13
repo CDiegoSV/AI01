@@ -1,15 +1,18 @@
+using Dante.Agents;
 using UnityEngine;
 
 public class WinTrigger : MonoBehaviour
 {
-    public GameObject winPanel;
+    [SerializeField] protected GameManager gameManager;
+
+    [SerializeField] protected GameObject winPanel;
 
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            winPanel.SetActive(true);
+            gameManager.StateMechanic(GameStates.VICTORY);
         }
     }
 }

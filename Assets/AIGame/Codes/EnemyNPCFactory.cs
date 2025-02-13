@@ -23,7 +23,7 @@ namespace Dante.Agents
         protected GameObject _enemyInstanceGameObject;
 
         protected GameObject _currentVisionCone;
-        protected List<GameObject> _currentEnemyVisionCones;
+        [SerializeField] protected List<GameObject> _currentEnemyVisionCones;
 
         #endregion
 
