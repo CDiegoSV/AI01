@@ -138,7 +138,7 @@ namespace Dante.Agents
 
         protected virtual void GoToNextEnemyBehaviour()
         {
-            Debug.Log("Entró a GoToNextEnemyBehaviour");
+            //Debug.Log("Entró a GoToNextEnemyBehaviour");
 
             _currentEnemyBehaviourIndex++;
             if(_currentEnemyBehaviourIndex >= enemyNPC_Behaviours.patrolBehaviours.Length)
