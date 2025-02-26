@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 439914}
   - component: {fileID: 3315188}
   - component: {fileID: 2334476}
+  - component: {fileID: -3232543463372271108}
   m_Layer: 0
   m_Name: SA_Bld_HospitalOffice_Damaged_01
   m_TagString: Untagged
@@ -87,6 +88,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &-3232543463372271108
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 115382}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 27.13385, y: 12.020027, z: 21.529358}
+  m_Center: {x: -0.00002002716, y: 5.549184, z: 0.000005722046}
 --- !u!1 &180748
 GameObject:
   m_ObjectHideFlags: 0
