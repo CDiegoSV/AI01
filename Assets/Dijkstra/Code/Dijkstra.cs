@@ -1,5 +1,6 @@
 using NUnit.Framework.Interfaces;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -18,8 +19,8 @@ namespace Dante.Dijkstra {
         [SerializeField] protected int _horizontalNodes;
         [SerializeField] protected int _verticalNodes;
         [Space(10)]
-        [SerializeField] protected int _areaWidth;
-        [SerializeField] protected int _areaHeight;
+        [SerializeField] protected float _areaWidth;
+        [SerializeField] protected float _areaHeight;
         [Space(10)]
         [Tooltip("Node obstacle detection layer.")]
         [SerializeField] protected LayerMask _obstacleLayerMask;
@@ -27,21 +28,21 @@ namespace Dante.Dijkstra {
 
         #region RuntimeVariables
 
-        [SerializeField, HideInInspector] protected List<Node> nodeList = new List<Node>();
+        [SerializeField] protected List<Node> nodeList = new List<Node>();
 
 
         /// <summary>
         /// Horizontal distance of the nodes.
         /// </summary>
-        protected float horizontalDistance;
+        [SerializeField, HideInInspector] protected float horizontalDistance;
         /// <summary>
         /// Vertical distance of the nodes.
         /// </summary>
-        protected float verticalDistance;
+        [SerializeField, HideInInspector] protected float verticalDistance;
         /// <summary>
         /// Diagonal distance between nodes.
         /// </summary>
-        protected float diagonalDistance;
+        [SerializeField, HideInInspector] protected float diagonalDistance;
 
         #endregion
 
@@ -64,8 +65,8 @@ namespace Dante.Dijkstra {
         public void InstanceNodes()
         {
             ClearAllNodesInTheList();
-            horizontalDistance = _areaWidth / _horizontalNodes;
-            verticalDistance = _areaHeight / _verticalNodes;
+            horizontalDistance = _areaWidth / (_horizontalNodes - 1f);
+            verticalDistance = _areaHeight / (_verticalNodes - 1f);
             for(int i = 0; i < _horizontalNodes; i++)
             {
                 for(int j = 0; j < _verticalNodes; j++)
@@ -82,9 +83,9 @@ namespace Dante.Dijkstra {
         {
             horizontalDistance = 0;
             diagonalDistance = 0;
-            foreach(Node node in nodeList)
+            foreach(Node node in transform.GetChild(0).GetComponentsInChildren<Node>())
             {
-                DestroyImmediate(node.gameObject);
+                DestroyImmediate(node?.gameObject);
             }
             nodeList.Clear();
         }
