@@ -5,6 +5,17 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Dante.Dijkstra {
+
+    //public struct DijkstraParameters
+    //{
+
+    //}
+
+    //public struct DijkstraRuntimeVariables
+    //{
+
+    //}
+
 	public class Dijkstra : MonoBehaviour
 	{
         #region References
@@ -24,11 +35,13 @@ namespace Dante.Dijkstra {
         [Space(10)]
         [Tooltip("Node obstacle detection layer.")]
         [SerializeField] protected LayerMask _obstacleLayerMask;
+        [Space(10)]
         #endregion
 
         #region RuntimeVariables
 
-        [SerializeField] protected List<Node> nodeList = new List<Node>();
+        [SerializeField, HideInInspector] protected List<Node> nodeList;
+        [SerializeField, HideInInspector] protected List<Connection> connectionList;
 
 
         /// <summary>
@@ -46,12 +59,6 @@ namespace Dante.Dijkstra {
 
         #endregion
 
-        #region EditorButtons
-
-
-
-        #endregion
-
         #region UnityMethods
 
 
@@ -64,7 +71,7 @@ namespace Dante.Dijkstra {
         /// </summary>
         public void InstanceNodes()
         {
-            ClearAllNodesInTheList();
+            ClearAllLists();
             horizontalDistance = _areaWidth / (_horizontalNodes - 1f);
             verticalDistance = _areaHeight / (_verticalNodes - 1f);
             for(int i = 0; i < _horizontalNodes; i++)
@@ -79,18 +86,43 @@ namespace Dante.Dijkstra {
             }
         }
 
-        public void ClearAllNodesInTheList()
+        public void ClearAllLists()
         {
             horizontalDistance = 0;
             diagonalDistance = 0;
             foreach(Node node in transform.GetChild(0).GetComponentsInChildren<Node>())
             {
-                DestroyImmediate(node?.gameObject);
+                DestroyImmediate(node.gameObject);
             }
             nodeList.Clear();
+
+            foreach (Connection connection in transform.GetChild(1).GetComponentsInChildren<Connection>())
+            {
+                DestroyImmediate(connection.gameObject);
+            }
+            connectionList.Clear();
         }
 
+        public void CreateGraphConnections()
+        {
+            foreach(Node node in nodeList)
+            {
+                foreach (Node neighbor in nodeList)
+                {
+                    if (neighbor != node && neighbor.State != NodeState.INACTIVE)
+                    {
+                        foreach(Connection connection in neighbor.Connections)
+                        {
+                           if(connection.nodeA ==  node || connection.nodeA == neighbor)
+                            {
 
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
 
         #endregion
 
@@ -105,7 +137,7 @@ namespace Dante.Dijkstra {
             {
                 Debug.DrawRay(transform.position, (node.transform.position - node.transform.position + Vector3.up * horizontalDistance).normalized * upHit.distance, Color.yellow);
                 //Debug.Log("Node " + new Vector2(node.transform.position.x, node.transform.position.z).ToString() +" Up Raycast hit an obstacle.");
-                node.GetComponent<Node>()?.StateMechanic(NodeState.INACTIVE);
+                node.GetComponent<Node>().StateMechanic(NodeState.INACTIVE);
                 return;
             }
 
@@ -143,17 +175,19 @@ namespace Dante.Dijkstra {
             }
             if(nodeHits >= 4)
             {
-                node.GetComponent<Node>()?.StateMechanic(NodeState.INACTIVE);
+                node.GetComponent<Node>().StateMechanic(NodeState.INACTIVE);
                 //Debug.Log("Node " + new Vector2(node.transform.position.x, node.transform.position.z).ToString() + " Set to Inactive");
                 return;
             }
             else
             {
-                node.GetComponent<Node>()?.StateMechanic(NodeState.ACTIVE);
+                node.GetComponent<Node>().StateMechanic(NodeState.ACTIVE);
                 //Debug.Log("Node " + new Vector2(node.transform.position.x, node.transform.position.z).ToString() + " Set to Active");
                 return;
             }
         }
+
+        
 
         #endregion
 

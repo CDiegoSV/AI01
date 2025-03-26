@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Dante.Dijkstra {
@@ -13,6 +14,7 @@ namespace Dante.Dijkstra {
 
     #endregion
 
+
     public class Node : MonoBehaviour
 	{
         #region References
@@ -26,7 +28,7 @@ namespace Dante.Dijkstra {
 
         #region RuntimeVariables
 
-
+        [SerializeField, HideInInspector] protected List<Connection> connections;
 
         #endregion
 
@@ -68,7 +70,7 @@ namespace Dante.Dijkstra {
 
         protected void SetIconsToNodeGameObject(NodeState nodeState)
         {
-            transform.GetChild(0).gameObject.name = new Vector2(transform.position.x, transform.position.z).ToString();
+            transform.GetChild(0).gameObject.name = /*"Node:" + */new Vector2(transform.position.x, transform.position.z).ToString();
             transform.GetChild(1).gameObject.name = state.ToString();
 
             switch (nodeState)
@@ -91,7 +93,15 @@ namespace Dante.Dijkstra {
 
         #region GettersSetters
 
+        public NodeState State
+        {
+            get { return state; }
+        }
 
+        public List<Connection> Connections
+        {
+            get { return connections; }
+        }
 
         #endregion
     }

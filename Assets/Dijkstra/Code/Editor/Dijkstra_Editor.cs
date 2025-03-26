@@ -10,6 +10,8 @@ namespace Dante.Dijkstra {
 
         [SerializeField] protected Dijkstra _dijkstra;
 
+
+
         #endregion
 
         #region RuntimeVariables
@@ -24,6 +26,7 @@ namespace Dante.Dijkstra {
             if( _dijkstra == null)
             {
                 _dijkstra = (Dijkstra)target;
+                _dijkstra = (Dijkstra)target;
             }
 
             base.OnInspectorGUI();
@@ -33,9 +36,13 @@ namespace Dante.Dijkstra {
             {
                 ProbeNodesButton();
             }
+            if (GUILayout.Button("Create Graph"))
+            {
+                _dijkstra.CreateGraphConnections(); ;
+            }
             if (GUILayout.Button("Clear All"))
             {
-                _dijkstra.ClearAllNodesInTheList();
+                _dijkstra.ClearAllLists();
             }
         }
 
