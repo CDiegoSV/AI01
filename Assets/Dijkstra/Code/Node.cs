@@ -28,7 +28,7 @@ namespace Dante.Dijkstra {
 
         #region RuntimeVariables
 
-        [SerializeField, HideInInspector] protected List<Connection> connections;
+        [SerializeField] public List<Connection> connections;
 
         #endregion
 
@@ -96,11 +96,6 @@ namespace Dante.Dijkstra {
         public NodeState State
         {
             get { return state; }
-        }
-
-        public List<Connection> Connections
-        {
-            get { return connections; }
         }
 
         #endregion
