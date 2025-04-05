@@ -32,6 +32,7 @@ namespace Dante.Dijkstra {
         [SerializeField] protected List<Connection> connectionList;
 
         protected bool newConnection;
+        protected bool obstacleDetected;
 
 
         /// <summary>
@@ -100,82 +101,57 @@ namespace Dante.Dijkstra {
             {
                 foreach (Node neighbor in nodeList)
                 {
-                    if (neighbor != node && neighbor.State != NodeState.INACTIVE)
+                    if (neighbor != node && (neighbor.State != NodeState.INACTIVE && node.State != NodeState.INACTIVE))
                     {
-                        if (neighbor.connections.Count > 0)
+                        if(connectionList.Count > 0)
                         {
-                            foreach(Connection connection in neighbor.connections)
+                            foreach(Connection connect in connectionList)
                             {
-                                if(connection.nodeA !=  node || connection.nodeA != neighbor)
-                                {
-                                    if (connection.nodeB != node || connection.nodeB != neighbor)
-                                    {
-                                        newConnection = true;
-                                    }
-                                    else
-                                    {
-                                        newConnection = false;
-                                    }
-                                }
-                                else
+                                if((connect.nodeA == node && connect.nodeB == neighbor) || (connect.nodeA == neighbor && connect.nodeB == node))
                                 {
                                     newConnection = false;
-                                }
-                            }
-                            if (Vector3.Distance(node.transform.position, neighbor.transform.position) <= diagonalDistance && newConnection)
-                            {
-                                if (Physics.Raycast(node.transform.position,
-                                    (node.transform.position - neighbor.transform.position).normalized, out RaycastHit nodeHit,
-                                        Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
-                                {
-                                    Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point);
-                                }
-                                if (Physics.Raycast(neighbor.transform.position,
-                                    (neighbor.transform.position - node.transform.position).normalized, out RaycastHit neighborHit,
-                                        Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
-                                {
-                                    Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point);
+                                    break;
                                 }
                                 else
                                 {
-                                    GameObject tempConnection = Instantiate(_connectionPrefab, transform.GetChild(1));
-                                    tempConnection.GetComponent<Connection>().nodeA = node;
-                                    tempConnection.GetComponent<Connection>().nodeB = neighbor;
-                                    connectionList.Add(tempConnection.GetComponent<Connection>());
-                                    node.connections.Add(tempConnection.GetComponent<Connection>());
-                                    neighbor.connections.Add(tempConnection.GetComponent<Connection>());
+                                    newConnection = true;
                                 }
                             }
                         }
                         else
                         {
-                            if (Vector3.Distance(node.transform.position, neighbor.transform.position) <= diagonalDistance)
+                            newConnection = true;
+                        }
+                        if (Vector3.Distance(node.transform.position, neighbor.transform.position) <= diagonalDistance && newConnection)
+                        {
+                            if (Physics.Raycast(node.transform.position,
+                                (neighbor.transform.position - node.transform.position).normalized, out RaycastHit nodeHit,
+                                    Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
                             {
-                                if (Physics.Raycast(node.transform.position,
-                                    (node.transform.position - neighbor.transform.position).normalized, out RaycastHit nodeHit,
-                                        Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
-                                {
-                                    Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point);
-                                }
-                                if (Physics.Raycast(neighbor.transform.position,
-                                    (neighbor.transform.position - node.transform.position).normalized, out RaycastHit neighborHit,
-                                        Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
-                                {
-                                    Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point);
-                                }
-                                else
-                                {
-                                    GameObject tempConnection = Instantiate(_connectionPrefab, transform.GetChild(1));
-                                    tempConnection.GetComponent<Connection>().nodeA = node;
-                                    tempConnection.GetComponent<Connection>().nodeB = neighbor;
-                                    connectionList.Add(tempConnection.GetComponent<Connection>());
-                                    node.connections.Add(tempConnection.GetComponent<Connection>());
-                                    neighbor.connections.Add(tempConnection.GetComponent<Connection>());
-                                }
+                                Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point, node.gameObject);
+                                obstacleDetected = true;
                             }
+                            if (Physics.Raycast(neighbor.transform.position,
+                                (node.transform.position - neighbor.transform.position).normalized, out RaycastHit neighborHit,
+                                    Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
+                            {
+                                Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point, node.gameObject);
+                                obstacleDetected = true;
+                            }
+                            if (!obstacleDetected)
+                            {
+                                GameObject tempConnection = Instantiate(_connectionPrefab, transform.GetChild(1));
+                                tempConnection.GetComponent<Connection>().nodeA = node;
+                                tempConnection.GetComponent<Connection>().nodeB = neighbor;
+                                connectionList.Add(tempConnection.GetComponent<Connection>());
+                                node.connections.Add(tempConnection.GetComponent<Connection>());
+                                neighbor.connections.Add(tempConnection.GetComponent<Connection>());
+                            }
+                            obstacleDetected = false;
+                            newConnection = false;
+
                         }
                     }
-                    break;
                 }
             }
         }
