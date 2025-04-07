@@ -17,10 +17,9 @@ public class Connection : MonoBehaviour
 
     #region Debug
 
-    [Header("Labels"), HideInInspector]
-    [SerializeField] GameObject nodeALabel;
-    [SerializeField] GameObject nodeBLabel;
-    [SerializeField] GameObject distanceLabel;
+    [SerializeField, HideInInspector] GameObject nodeALabel;
+    [SerializeField, HideInInspector] GameObject nodeBLabel;
+    [SerializeField, HideInInspector] GameObject distanceLabel;
 
     #endregion
 

@@ -126,12 +126,8 @@ namespace Dante.Dijkstra {
                         {
                             if (Physics.Raycast(node.transform.position,
                                 (neighbor.transform.position - node.transform.position).normalized, out RaycastHit nodeHit,
-                                    Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
-                            {
-                                Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point, node.gameObject);
-                                obstacleDetected = true;
-                            }
-                            if (Physics.Raycast(neighbor.transform.position,
+                                    Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask)
+                                || Physics.Raycast(neighbor.transform.position,
                                 (node.transform.position - neighbor.transform.position).normalized, out RaycastHit neighborHit,
                                     Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
                             {
@@ -149,8 +145,18 @@ namespace Dante.Dijkstra {
                             }
                             obstacleDetected = false;
                             newConnection = false;
-
                         }
+                    }
+                }
+            }
+            foreach (Node node in nodeList)
+            {
+                if (node.connections.Count == 2)
+                {
+                    Vector3 node0Direction = (node.connections[0].nodeA.transform.position - node.transform.position).normalized;
+                    Vector3 node1Direction = (node.connections[1].transform.position - node.transform.position).normalized;
+                    if (Vector3.Dot(node0Direction, node1Direction) == 0 || Vector3.Dot(node0Direction, node1Direction) == 1)
+                    {
                     }
                 }
             }
@@ -218,8 +224,6 @@ namespace Dante.Dijkstra {
                 return;
             }
         }
-
-        
 
         #endregion
 
