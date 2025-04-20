@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
+using UnityEditor.MemoryProfiler;
 using UnityEngine;
+using UnityEngine.ProBuilder.Shapes;
 
 namespace Dante.Dijkstra {
 
-	public class Dijkstra : MonoBehaviour
-	{
+    public class Dijkstra : MonoBehaviour
+    {
         #region References
         [Header("References")]
 
@@ -66,9 +69,9 @@ namespace Dante.Dijkstra {
             horizontalDistance = _areaWidth / (_horizontalNodes - 1f);
             verticalDistance = _areaHeight / (_verticalNodes - 1f);
             diagonalDistance = Mathf.Sqrt(Mathf.Pow(horizontalDistance, 2) + Mathf.Pow(verticalDistance, 2));
-            for(int i = 0; i < _horizontalNodes; i++)
+            for (int i = 0; i < _horizontalNodes; i++)
             {
-                for(int j = 0; j < _verticalNodes; j++)
+                for (int j = 0; j < _verticalNodes; j++)
                 {
                     GameObject nodeInstance = GameObject.Instantiate(_nodePrefab, transform.GetChild(0), false);
                     nodeInstance.transform.localPosition = new Vector3((i * horizontalDistance) * -1, 0, j * verticalDistance);
@@ -82,7 +85,7 @@ namespace Dante.Dijkstra {
         {
             horizontalDistance = 0;
             diagonalDistance = 0;
-            foreach(Node node in transform.GetChild(0).GetComponentsInChildren<Node>())
+            foreach (Node node in transform.GetChild(0).GetComponentsInChildren<Node>())
             {
                 DestroyImmediate(node.gameObject);
             }
@@ -97,17 +100,17 @@ namespace Dante.Dijkstra {
 
         public void CreateGraphConnections()
         {
-            foreach(Node node in nodeList)
+            foreach (Node node in nodeList)
             {
                 foreach (Node neighbor in nodeList)
                 {
                     if (neighbor != node && (neighbor.State != NodeState.INACTIVE && node.State != NodeState.INACTIVE))
                     {
-                        if(connectionList.Count > 0)
+                        if (connectionList.Count > 0)
                         {
-                            foreach(Connection connect in connectionList)
+                            foreach (Connection connect in connectionList)
                             {
-                                if((connect.nodeA == node && connect.nodeB == neighbor) || (connect.nodeA == neighbor && connect.nodeB == node))
+                                if ((connect.nodeA == node && connect.nodeB == neighbor) || (connect.nodeA == neighbor && connect.nodeB == node))
                                 {
                                     newConnection = false;
                                     break;
@@ -149,17 +152,7 @@ namespace Dante.Dijkstra {
                     }
                 }
             }
-            foreach (Node node in nodeList)
-            {
-                if (node.connections.Count == 2)
-                {
-                    Vector3 node0Direction = (node.connections[0].nodeA.transform.position - node.transform.position).normalized;
-                    Vector3 node1Direction = (node.connections[1].transform.position - node.transform.position).normalized;
-                    if (Vector3.Dot(node0Direction, node1Direction) == 0 || Vector3.Dot(node0Direction, node1Direction) == 1)
-                    {
-                    }
-                }
-            }
+            ReduceRedundantConnections();
         }
 
         #endregion
@@ -211,7 +204,7 @@ namespace Dante.Dijkstra {
                 //Debug.Log("Node " + new Vector2(node.transform.position.x, node.transform.position.z).ToString() +" Backward Raycast hit an obstacle.");
                 nodeHits++;
             }
-            if(nodeHits >= 4)
+            if (nodeHits >= 4)
             {
                 node.GetComponent<Node>().StateMechanic(NodeState.INACTIVE);
                 //Debug.Log("Node " + new Vector2(node.transform.position.x, node.transform.position.z).ToString() + " Set to Inactive");
@@ -225,12 +218,112 @@ namespace Dante.Dijkstra {
             }
         }
 
+        protected Node GetOtherNode(Connection c, Node center)
+        {
+            return c.nodeA == center ? c.nodeB : c.nodeA;
+        }
+
+        protected void ReplaceConnection(Node n1, Node n2, Connection oldA, Connection oldB)
+        {
+            GameObject newObj = Instantiate(_connectionPrefab, transform.GetChild(1));
+            Connection newConn = newObj.GetComponent<Connection>();
+            newConn.nodeA = n1;
+            newConn.nodeB = n2;
+
+            n1.connections.Remove(oldA);
+            n1.connections.Remove(oldB);
+            n1.connections.Add(newConn);
+
+            n2.connections.Remove(oldA);
+            n2.connections.Remove(oldB);
+            n2.connections.Add(newConn);
+
+            connectionList.Remove(oldA);
+            connectionList.Remove(oldB);
+            DestroyImmediate(oldA.gameObject);
+            DestroyImmediate(oldB.gameObject);
+
+            connectionList.Add(newConn);
+        }
+
+        protected void ReduceRedundantConnections()
+        {
+            for (int i = 0; i < nodeList.Count; i++)
+            {
+                Node node = nodeList[i];
+                if (node == null) continue;
+
+                if (node.connections.Count == 2)
+                {
+                    Node a = GetOtherNode(node.connections[0], node);
+                    Node b = GetOtherNode(node.connections[1], node);
+
+                    Vector3 dirA = (a.transform.position - node.transform.position).normalized;
+                    Vector3 dirB = (b.transform.position - node.transform.position).normalized;
+                    float dot = Vector3.Dot(dirA, dirB);
+
+                    if (Mathf.Abs(dot - 1f) < 0.01f || Mathf.Abs(dot + 1f) < 0.01f)
+                    {
+                        ReplaceConnection(a, b, node.connections[0], node.connections[1]);
+                        DestroyImmediate(node.gameObject);
+                        nodeList[i] = null;
+                    }
+                }
+
+                else if (node.connections.Count == 8)
+                {
+                    List<Node> neighbors = new List<Node>();
+                    foreach (Connection c in node.connections)
+                    {
+                        neighbors.Add(GetOtherNode(c, node));
+                    }
+
+                    for (int x = 0; x < neighbors.Count; x++)
+                    {
+                        for (int y = x + 1; y < neighbors.Count; y++)
+                        {
+                            Node a = neighbors[x];
+                            Node b = neighbors[y];
+
+                            if (a.connections.Exists(c => GetOtherNode(c, a) == b)) continue;
+
+                            GameObject newObj = Instantiate(_connectionPrefab, transform.GetChild(1));
+                            Connection newConn = newObj.GetComponent<Connection>();
+                            newConn.nodeA = a;
+                            newConn.nodeB = b;
+                            a.connections.Add(newConn);
+                            b.connections.Add(newConn);
+                            connectionList.Add(newConn);
+                        }
+                    }
+
+                    foreach (Connection c in node.connections)
+                    {
+                        Node other = GetOtherNode(c, node);
+                        other.connections.Remove(c);
+                        connectionList.Remove(c);
+                        DestroyImmediate(c.gameObject);
+                    }
+
+                    DestroyImmediate(node.gameObject);
+                    nodeList[i] = null;
+                }
+            }
+
+            nodeList.RemoveAll(n => n == null);
+
+            foreach (Node node in nodeList)
+            {
+                if (node != null && (node.connections.Count == 2 || node.connections.Count == 8))
+                {
+                    ReduceRedundantConnections();
+                    break;
+                }
+            }
+        }
+
         #endregion
 
-        #region GettersSetters
 
-
-
-        #endregion
     }
 }

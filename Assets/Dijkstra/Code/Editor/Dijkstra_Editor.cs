@@ -40,6 +40,7 @@ namespace Dante.Dijkstra {
             {
                 _dijkstra.CreateGraphConnections(); ;
             }
+
             if (GUILayout.Button("Clear All"))
             {
                 _dijkstra.ClearAllLists();
