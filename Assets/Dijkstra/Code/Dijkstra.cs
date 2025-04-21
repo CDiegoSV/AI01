@@ -251,7 +251,7 @@ namespace Dante.Dijkstra {
             for (int i = 0; i < nodeList.Count; i++)
             {
                 Node node = nodeList[i];
-                if (node == null) continue;
+                if (node == null && node.State == NodeState.ACTIVE) continue;
 
                 if (node.connections.Count == 2)
                 {
@@ -314,7 +314,22 @@ namespace Dante.Dijkstra {
 
             foreach (Node node in nodeList)
             {
-                if (node != null && (node.connections.Count == 2 || node.connections.Count == 8))
+                if (node.connections.Count == 2 && node.State == NodeState.ACTIVE)
+                {
+                    Node a = GetOtherNode(node.connections[0], node);
+                    Node b = GetOtherNode(node.connections[1], node);
+
+                    Vector3 dirA = (a.transform.position - node.transform.position).normalized;
+                    Vector3 dirB = (b.transform.position - node.transform.position).normalized;
+                    float dot = Vector3.Dot(dirA, dirB);
+
+                    if (node != null && (node.connections.Count == 2) && (Mathf.Abs(dot - 1f) < 0.01f || Mathf.Abs(dot + 1f) < 0.01f))
+                    {
+                        ReduceRedundantConnections();
+                        break;
+                    }
+                }
+                else if (node != null && node.State == NodeState.ACTIVE && node.connections.Count == 8)
                 {
                     ReduceRedundantConnections();
                     break;
