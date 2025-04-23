@@ -66,5 +66,10 @@ public class Connection : MonoBehaviour
 
     #endregion
 
+    #region GettersSetters
+
+    public float Distance { get { return distanceBetweenNodes; } }
+
+    #endregion
 
 }

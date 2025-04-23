@@ -1,10 +1,18 @@
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
-using UnityEditor.MemoryProfiler;
 using UnityEngine;
-using UnityEngine.ProBuilder.Shapes;
 
 namespace Dante.Dijkstra {
+
+    #region Structs
+
+    [System.Serializable]
+    public struct Route
+    {
+        public List<Node> routeNodes;
+        public float distance;
+    }
+
+    #endregion
 
     public class Dijkstra : MonoBehaviour
     {
@@ -27,12 +35,19 @@ namespace Dante.Dijkstra {
         [Tooltip("Node obstacle detection layer.")]
         [SerializeField] protected LayerMask _obstacleLayerMask;
         [Space(10)]
+
+        [Header("Route Nodes")]
+        [SerializeField] protected Node _initialNode;
+        [SerializeField] protected Node _destinyNode;
+
         #endregion
 
         #region RuntimeVariables
 
         [SerializeField] protected List<Node> nodeList;
         [SerializeField] protected List<Connection> connectionList;
+        [SerializeField] public List<Route> routesList;
+        [SerializeField] public List<Route> efectiveRoutesList;
 
         protected bool newConnection;
         protected bool obstacleDetected;
@@ -152,8 +167,111 @@ namespace Dante.Dijkstra {
                     }
                 }
             }
-            ReduceRedundantConnections();
         }
+
+        public void ReduceRedundantConnections()
+        {
+            for (int i = 0; i < nodeList.Count; i++)
+            {
+                Node node = nodeList[i];
+                if (node == null && node.State == NodeState.ACTIVE) continue;
+
+                if (node.connections.Count == 2)
+                {
+                    Node a = GetOtherNode(node.connections[0], node);
+                    Node b = GetOtherNode(node.connections[1], node);
+
+                    Vector3 dirA = (a.transform.position - node.transform.position).normalized;
+                    Vector3 dirB = (b.transform.position - node.transform.position).normalized;
+                    float dot = Vector3.Dot(dirA, dirB);
+
+                    //if (Mathf.Abs(dot - 1f) < 0.01f || Mathf.Abs(dot + 1f) < 0.01f)
+                    if (dot < -0.8f)
+                    {
+                        ReplaceConnection(a, b, node.connections[0], node.connections[1]);
+                        DestroyImmediate(node.gameObject);
+                        nodeList[i] = null;
+                    }
+                }
+
+                else if (node.connections.Count == 8)
+                {
+                    List<Node> neighbors = new List<Node>();
+                    foreach (Connection c in node.connections)
+                    {
+                        neighbors.Add(GetOtherNode(c, node));
+                    }
+
+                    for (int x = 0; x < neighbors.Count; x++)
+                    {
+                        for (int y = x + 1; y < neighbors.Count; y++)
+                        {
+                            //TODO: check if the othter nodes also have 8 connections
+                            Node a = neighbors[x];
+                            Node b = neighbors[y];
+
+                            if (a.connections.Exists(c => GetOtherNode(c, a) == b)) continue;
+
+                            GameObject newObj = Instantiate(_connectionPrefab, transform.GetChild(1));
+                            Connection newConn = newObj.GetComponent<Connection>();
+                            newConn.nodeA = a;
+                            newConn.nodeB = b;
+                            a.connections.Add(newConn);
+                            b.connections.Add(newConn);
+                            connectionList.Add(newConn);
+                        }
+                    }
+
+                    foreach (Connection c in node.connections)
+                    {
+                        Node other = GetOtherNode(c, node);
+                        other.connections.Remove(c);
+                        connectionList.Remove(c);
+                        DestroyImmediate(c.gameObject);
+                    }
+
+                    DestroyImmediate(node.gameObject);
+                    nodeList[i] = null;
+                }
+            }
+
+            nodeList.RemoveAll(n => n == null);
+
+            foreach (Node node in nodeList)
+            {
+                if (node.connections.Count == 2 && node.State == NodeState.ACTIVE)
+                {
+                    Node a = GetOtherNode(node.connections[0], node);
+                    Node b = GetOtherNode(node.connections[1], node);
+
+                    Vector3 dirA = (a.transform.position - node.transform.position).normalized;
+                    Vector3 dirB = (b.transform.position - node.transform.position).normalized;
+                    float dot = Vector3.Dot(dirA, dirB);
+
+                    if (node != null && (node.connections.Count == 2) && (Mathf.Abs(dot - 1f) < 0.01f || Mathf.Abs(dot + 1f) < 0.01f))
+                    {
+                        ReduceRedundantConnections();
+                        break;
+                    }
+                }
+                else if (node != null && node.State == NodeState.ACTIVE && node.connections.Count == 8)
+                {
+                    ReduceRedundantConnections();
+                    break;
+                }
+            }
+        }
+
+
+        public void GetRoutes(Node initialNode, Node destinyNode)
+        {
+            ClearRoutes();
+            Route newRoute = new Route();
+            newRoute.routeNodes = new List<Node>();
+            initialNode.ExploreRoutes(newRoute, destinyNode, this, newRoute.distance);
+        }
+
+
 
         #endregion
 
@@ -246,99 +364,21 @@ namespace Dante.Dijkstra {
             connectionList.Add(newConn);
         }
 
-        protected void ReduceRedundantConnections()
+        protected void ClearRoutes()
         {
-            for (int i = 0; i < nodeList.Count; i++)
-            {
-                Node node = nodeList[i];
-                if (node == null && node.State == NodeState.ACTIVE) continue;
-
-                if (node.connections.Count == 2)
-                {
-                    Node a = GetOtherNode(node.connections[0], node);
-                    Node b = GetOtherNode(node.connections[1], node);
-
-                    Vector3 dirA = (a.transform.position - node.transform.position).normalized;
-                    Vector3 dirB = (b.transform.position - node.transform.position).normalized;
-                    float dot = Vector3.Dot(dirA, dirB);
-
-                    if (Mathf.Abs(dot - 1f) < 0.01f || Mathf.Abs(dot + 1f) < 0.01f)
-                    {
-                        ReplaceConnection(a, b, node.connections[0], node.connections[1]);
-                        DestroyImmediate(node.gameObject);
-                        nodeList[i] = null;
-                    }
-                }
-
-                else if (node.connections.Count == 8)
-                {
-                    List<Node> neighbors = new List<Node>();
-                    foreach (Connection c in node.connections)
-                    {
-                        neighbors.Add(GetOtherNode(c, node));
-                    }
-
-                    for (int x = 0; x < neighbors.Count; x++)
-                    {
-                        for (int y = x + 1; y < neighbors.Count; y++)
-                        {
-                            Node a = neighbors[x];
-                            Node b = neighbors[y];
-
-                            if (a.connections.Exists(c => GetOtherNode(c, a) == b)) continue;
-
-                            GameObject newObj = Instantiate(_connectionPrefab, transform.GetChild(1));
-                            Connection newConn = newObj.GetComponent<Connection>();
-                            newConn.nodeA = a;
-                            newConn.nodeB = b;
-                            a.connections.Add(newConn);
-                            b.connections.Add(newConn);
-                            connectionList.Add(newConn);
-                        }
-                    }
-
-                    foreach (Connection c in node.connections)
-                    {
-                        Node other = GetOtherNode(c, node);
-                        other.connections.Remove(c);
-                        connectionList.Remove(c);
-                        DestroyImmediate(c.gameObject);
-                    }
-
-                    DestroyImmediate(node.gameObject);
-                    nodeList[i] = null;
-                }
-            }
-
-            nodeList.RemoveAll(n => n == null);
-
-            foreach (Node node in nodeList)
-            {
-                if (node.connections.Count == 2 && node.State == NodeState.ACTIVE)
-                {
-                    Node a = GetOtherNode(node.connections[0], node);
-                    Node b = GetOtherNode(node.connections[1], node);
-
-                    Vector3 dirA = (a.transform.position - node.transform.position).normalized;
-                    Vector3 dirB = (b.transform.position - node.transform.position).normalized;
-                    float dot = Vector3.Dot(dirA, dirB);
-
-                    if (node != null && (node.connections.Count == 2) && (Mathf.Abs(dot - 1f) < 0.01f || Mathf.Abs(dot + 1f) < 0.01f))
-                    {
-                        ReduceRedundantConnections();
-                        break;
-                    }
-                }
-                else if (node != null && node.State == NodeState.ACTIVE && node.connections.Count == 8)
-                {
-                    ReduceRedundantConnections();
-                    break;
-                }
-            }
+            routesList.Clear();
+            efectiveRoutesList.Clear();
         }
 
         #endregion
 
+        #region GettersSetters
+
+        public Node InitialNode { get { return _initialNode; } }
+
+        public Node DestinyNode { get { return _destinyNode; } }
+
+        #endregion
 
     }
 }

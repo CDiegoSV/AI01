@@ -40,7 +40,14 @@ namespace Dante.Dijkstra {
             {
                 _dijkstra.CreateGraphConnections(); ;
             }
-
+            if (GUILayout.Button("Reduce Connections"))
+            {
+                _dijkstra.ReduceRedundantConnections(); ;
+            }
+            if (GUILayout.Button("Get Routes"))
+            {
+                _dijkstra.GetRoutes(_dijkstra.InitialNode, _dijkstra.DestinyNode);
+            }
             if (GUILayout.Button("Clear All"))
             {
                 _dijkstra.ClearAllLists();
