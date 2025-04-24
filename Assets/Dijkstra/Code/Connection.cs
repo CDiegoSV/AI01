@@ -56,7 +56,7 @@ public class Connection : MonoBehaviour
             }
             if(value == nodeB)
             {
-                return nodeB;
+                return nodeA;
             }
         }
         Debug.LogError(this.name + " " + gameObject.name + " - Node " + value.name +

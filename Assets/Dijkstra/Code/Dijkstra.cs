@@ -39,6 +39,12 @@ namespace Dante.Dijkstra {
         [Header("Route Nodes")]
         [SerializeField] protected Node _initialNode;
         [SerializeField] protected Node _destinyNode;
+        [Space(10)]
+        [Tooltip("Shows the route with the most distance eficient route to the destiny node.")]
+        [SerializeField] protected Route _mostEficientRoute;
+        [Tooltip("Shows the routes with the most distance eficient route to the destiny node.")]
+        [SerializeField] protected List<Route> _mostEficientRoutes;
+        [Space(10)]
 
         #endregion
 
@@ -46,8 +52,8 @@ namespace Dante.Dijkstra {
 
         [SerializeField] protected List<Node> nodeList;
         [SerializeField] protected List<Connection> connectionList;
-        [SerializeField] public List<Route> routesList;
-        [SerializeField] public List<Route> efectiveRoutesList;
+        [SerializeField, HideInInspector] public List<Route> routesList;
+        [SerializeField, HideInInspector] public List<Route> efectiveRoutesList;
 
         protected bool newConnection;
         protected bool obstacleDetected;
@@ -111,6 +117,7 @@ namespace Dante.Dijkstra {
                 DestroyImmediate(connection.gameObject);
             }
             connectionList.Clear();
+            ClearRoutes();
         }
 
         public void CreateGraphConnections()
@@ -119,50 +126,39 @@ namespace Dante.Dijkstra {
             {
                 foreach (Node neighbor in nodeList)
                 {
-                    if (neighbor != node && (neighbor.State != NodeState.INACTIVE && node.State != NodeState.INACTIVE))
+                    if (neighbor != node && neighbor.State != NodeState.INACTIVE && node.State != NodeState.INACTIVE)
                     {
-                        if (connectionList.Count > 0)
+                        bool connectionExists = false;
+
+                        foreach (Connection connect in connectionList)
                         {
-                            foreach (Connection connect in connectionList)
+                            if ((connect.nodeA == node && connect.nodeB == neighbor) || (connect.nodeA == neighbor && connect.nodeB == node))
                             {
-                                if ((connect.nodeA == node && connect.nodeB == neighbor) || (connect.nodeA == neighbor && connect.nodeB == node))
-                                {
-                                    newConnection = false;
-                                    break;
-                                }
-                                else
-                                {
-                                    newConnection = true;
-                                }
+                                connectionExists = true;
+                                break;
                             }
                         }
-                        else
-                        {
-                            newConnection = true;
-                        }
-                        if (Vector3.Distance(node.transform.position, neighbor.transform.position) <= diagonalDistance && newConnection)
+
+                        if (Vector3.Distance(node.transform.position, neighbor.transform.position) <= diagonalDistance && !connectionExists)
                         {
                             if (Physics.Raycast(node.transform.position,
                                 (neighbor.transform.position - node.transform.position).normalized, out RaycastHit nodeHit,
-                                    Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask)
+                                Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask)
                                 || Physics.Raycast(neighbor.transform.position,
                                 (node.transform.position - neighbor.transform.position).normalized, out RaycastHit neighborHit,
-                                    Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
+                                Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
                             {
                                 Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point, node.gameObject);
-                                obstacleDetected = true;
+                                continue;
                             }
-                            if (!obstacleDetected)
-                            {
-                                GameObject tempConnection = Instantiate(_connectionPrefab, transform.GetChild(1));
-                                tempConnection.GetComponent<Connection>().nodeA = node;
-                                tempConnection.GetComponent<Connection>().nodeB = neighbor;
-                                connectionList.Add(tempConnection.GetComponent<Connection>());
-                                node.connections.Add(tempConnection.GetComponent<Connection>());
-                                neighbor.connections.Add(tempConnection.GetComponent<Connection>());
-                            }
-                            obstacleDetected = false;
-                            newConnection = false;
+
+                            GameObject tempConnection = Instantiate(_connectionPrefab, transform.GetChild(1));
+                            Connection newConn = tempConnection.GetComponent<Connection>();
+                            newConn.nodeA = node;
+                            newConn.nodeB = neighbor;
+                            connectionList.Add(newConn);
+                            node.connections.Add(newConn);
+                            neighbor.connections.Add(newConn);
                         }
                     }
                 }
@@ -206,19 +202,21 @@ namespace Dante.Dijkstra {
                     {
                         for (int y = x + 1; y < neighbors.Count; y++)
                         {
-                            //TODO: check if the othter nodes also have 8 connections
-                            Node a = neighbors[x];
-                            Node b = neighbors[y];
+                            if (neighbors[x].connections.Count == 8 && neighbors[y].connections.Count == 8)
+                            {
+                                Node a = neighbors[x];
+                                Node b = neighbors[y];
 
-                            if (a.connections.Exists(c => GetOtherNode(c, a) == b)) continue;
+                                if (a.connections.Exists(c => GetOtherNode(c, a) == b)) continue;
 
-                            GameObject newObj = Instantiate(_connectionPrefab, transform.GetChild(1));
-                            Connection newConn = newObj.GetComponent<Connection>();
-                            newConn.nodeA = a;
-                            newConn.nodeB = b;
-                            a.connections.Add(newConn);
-                            b.connections.Add(newConn);
-                            connectionList.Add(newConn);
+                                GameObject newObj = Instantiate(_connectionPrefab, transform.GetChild(1));
+                                Connection newConn = newObj.GetComponent<Connection>();
+                                newConn.nodeA = a;
+                                newConn.nodeB = b;
+                                a.connections.Add(newConn);
+                                b.connections.Add(newConn);
+                                connectionList.Add(newConn);
+                            }
                         }
                     }
 
@@ -269,6 +267,7 @@ namespace Dante.Dijkstra {
             Route newRoute = new Route();
             newRoute.routeNodes = new List<Node>();
             initialNode.ExploreRoutes(newRoute, destinyNode, this, newRoute.distance);
+            GetMostEficientRoutes();
         }
 
 
@@ -368,6 +367,41 @@ namespace Dante.Dijkstra {
         {
             routesList.Clear();
             efectiveRoutesList.Clear();
+            _mostEficientRoutes.Clear();
+            _mostEficientRoute = new Route();
+        }
+
+        protected void GetMostEficientRoutes()
+        {
+            _mostEficientRoute.routeNodes = new List<Node>();
+            _mostEficientRoute.distance = Mathf.Infinity;
+
+
+            foreach (Route route in efectiveRoutesList)
+            {
+                if (route.distance < _mostEficientRoute.distance)
+                {
+                    _mostEficientRoute.routeNodes = route.routeNodes;
+                    _mostEficientRoute.distance = route.distance;
+                }
+            }
+            
+            _mostEficientRoutes.Add(_mostEficientRoute);
+            foreach (Route route in efectiveRoutesList)
+            {
+                if ((_mostEficientRoute.distance == route.distance) && (_mostEficientRoute.routeNodes == route.routeNodes))
+                {
+                    continue;
+                }
+                else if(_mostEficientRoute.routeNodes != route.routeNodes && _mostEficientRoute.distance == route.distance)
+                {
+                    _mostEficientRoutes.Add(route);
+                }
+            }
+            foreach(Node node in _mostEficientRoute.routeNodes)
+            {
+                node.ChangeColor(node.ActiveMaterial);
+            }
         }
 
         #endregion

@@ -50,7 +50,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _activeNodeMaterial: {fileID: 2100000, guid: 73d007a9933c9de4c8b9a143c7c28e23, type: 2}
   _inactiveNodeMaterial: {fileID: 2100000, guid: 79218dbabf591442f8911882fd0e3468, type: 2}
+  _routedNodeMaterial: {fileID: 2100000, guid: ad541bba656c5704dbdff04ea02bc7f0, type: 2}
   state: 0
+  connections: []
 --- !u!33 &1516845076992199894
 MeshFilter:
   m_ObjectHideFlags: 0
