@@ -1,3 +1,4 @@
+using Dante.Agents;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ namespace Dante.Dijkstra {
 
         [SerializeField] protected GameObject _nodePrefab;
         [SerializeField] protected GameObject _connectionPrefab;
+        [SerializeField] protected GameManager _gameManager;
 
         #endregion
 
@@ -52,8 +54,8 @@ namespace Dante.Dijkstra {
 
         [SerializeField] protected List<Node> nodeList;
         [SerializeField] protected List<Connection> connectionList;
-        [SerializeField, HideInInspector] public List<Route> routesList;
-        [SerializeField, HideInInspector] public List<Route> efectiveRoutesList;
+        [SerializeField] public List<Route> routesList;
+        [SerializeField] public List<Route> efectiveRoutesList;
 
         protected bool newConnection;
         protected bool obstacleDetected;
@@ -124,43 +126,47 @@ namespace Dante.Dijkstra {
         {
             foreach (Node node in nodeList)
             {
+                if (node.State == NodeState.INACTIVE)
+                    continue;
+
                 foreach (Node neighbor in nodeList)
                 {
-                    if (neighbor != node && neighbor.State != NodeState.INACTIVE && node.State != NodeState.INACTIVE)
-                    {
-                        bool connectionExists = false;
+                    if (neighbor == node || neighbor.State == NodeState.INACTIVE)
+                        continue;
 
-                        foreach (Connection connect in connectionList)
-                        {
-                            if ((connect.nodeA == node && connect.nodeB == neighbor) || (connect.nodeA == neighbor && connect.nodeB == node))
-                            {
-                                connectionExists = true;
-                                break;
-                            }
-                        }
+                    Vector3 offset = neighbor.transform.position - node.transform.position;
+                    float dx = Mathf.Abs(offset.x);
+                    float dz = Mathf.Abs(offset.z);
+                    float distance = offset.magnitude;
 
-                        if (Vector3.Distance(node.transform.position, neighbor.transform.position) <= diagonalDistance && !connectionExists)
-                        {
-                            if (Physics.Raycast(node.transform.position,
-                                (neighbor.transform.position - node.transform.position).normalized, out RaycastHit nodeHit,
-                                Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask)
-                                || Physics.Raycast(neighbor.transform.position,
-                                (node.transform.position - neighbor.transform.position).normalized, out RaycastHit neighborHit,
-                                Vector3.Distance(node.transform.position, neighbor.transform.position), _obstacleLayerMask))
-                            {
-                                Debug.Log("Obstacle Hit in Connection at: " + nodeHit.point, node.gameObject);
-                                continue;
-                            }
+                    if (distance > diagonalDistance)
+                        continue;
 
-                            GameObject tempConnection = Instantiate(_connectionPrefab, transform.GetChild(1));
-                            Connection newConn = tempConnection.GetComponent<Connection>();
-                            newConn.nodeA = node;
-                            newConn.nodeB = neighbor;
-                            connectionList.Add(newConn);
-                            node.connections.Add(newConn);
-                            neighbor.connections.Add(newConn);
-                        }
-                    }
+                    bool isHorizontal = Mathf.Approximately(dx, horizontalDistance) && Mathf.Approximately(dz, 0f);
+                    bool isVertical = Mathf.Approximately(dz, verticalDistance) && Mathf.Approximately(dx, 0f);
+                    bool isDiagonal = Mathf.Approximately(dx, horizontalDistance) && Mathf.Approximately(dz, verticalDistance);
+
+                    if (!(isHorizontal || isVertical || isDiagonal))
+                        continue;
+
+                    bool connectionExists = connectionList.Exists(c => (c.nodeA == node && c.nodeB == neighbor) ||
+                        (c.nodeA == neighbor && c.nodeB == node));
+
+                    if (connectionExists)
+                        continue;
+
+                    Vector3 direction = offset.normalized;
+                    if (Physics.Raycast(node.transform.position, direction, out RaycastHit hit1, distance, _obstacleLayerMask)
+                        || Physics.Raycast(neighbor.transform.position, -direction, out RaycastHit hit2, distance, _obstacleLayerMask))
+                        continue;
+
+                    GameObject tempConnection = Instantiate(_connectionPrefab, transform.GetChild(1));
+                    Connection newConn = tempConnection.GetComponent<Connection>();
+                    newConn.nodeA = node;
+                    newConn.nodeB = neighbor;
+                    connectionList.Add(newConn);
+                    node.connections.Add(newConn);
+                    neighbor.connections.Add(newConn);
                 }
             }
         }
@@ -389,10 +395,7 @@ namespace Dante.Dijkstra {
             _mostEficientRoutes.Add(_mostEficientRoute);
             foreach (Route route in efectiveRoutesList)
             {
-                if ((_mostEficientRoute.distance == route.distance) && (_mostEficientRoute.routeNodes == route.routeNodes))
-                {
-                    continue;
-                }
+                if ((_mostEficientRoute.distance == route.distance) && (_mostEficientRoute.routeNodes == route.routeNodes)) continue;
                 else if(_mostEficientRoute.routeNodes != route.routeNodes && _mostEficientRoute.distance == route.distance)
                 {
                     _mostEficientRoutes.Add(route);
@@ -402,6 +405,19 @@ namespace Dante.Dijkstra {
             {
                 node.ChangeColor(node.ActiveMaterial);
             }
+
+
+            _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints = new Waypoints[_mostEficientRoute.routeNodes.Count + 1];
+
+            for(int i = 0; i < _mostEficientRoute.routeNodes.Count; i++)
+            {
+                _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[i].waypointState = WaypointState.Moving;
+                _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[i].waypoint = _mostEficientRoute.routeNodes[i].transform.position;
+                _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[i].speedMPS = 5f;
+            }
+            _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_mostEficientRoute.routeNodes.Count].waypointState = WaypointState.Moving;
+            _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_mostEficientRoute.routeNodes.Count].waypoint = _mostEficientRoute.routeNodes[0].transform.position;
+            _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_mostEficientRoute.routeNodes.Count].speedMPS = 0f;
         }
 
         #endregion
