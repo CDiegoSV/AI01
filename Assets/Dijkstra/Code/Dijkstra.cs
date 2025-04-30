@@ -141,7 +141,7 @@ namespace Dante.Dijkstra {
                     float dz = Mathf.Abs(offset.z);
                     float distance = offset.magnitude;
 
-                    if (distance > diagonalDistance)
+                    if (distance > diagonalDistance + 0.1f)
                         continue;
 
                     bool isHorizontal = Mathf.Approximately(dx, horizontalDistance) && Mathf.Approximately(dz, 0f);
@@ -158,8 +158,8 @@ namespace Dante.Dijkstra {
                         continue;
 
                     Vector3 direction = offset.normalized;
-                    if (Physics.Raycast(node.transform.position, direction, out RaycastHit hit1, distance, _obstacleLayerMask)
-                        || Physics.Raycast(neighbor.transform.position, -direction, out RaycastHit hit2, distance, _obstacleLayerMask))
+                    if (Physics.Raycast(node.transform.position, direction, out RaycastHit hit1, distance + 0.1f, _obstacleLayerMask)
+                        || Physics.Raycast(neighbor.transform.position, -direction, out RaycastHit hit2, distance + 0.1f, _obstacleLayerMask))
                         continue;
 
                     GameObject tempConnection = Instantiate(_connectionPrefab, transform.GetChild(1));
