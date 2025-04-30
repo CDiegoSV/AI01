@@ -256,7 +256,7 @@ namespace Dante.Agents
         protected void ExecutingMoveSubStateMachine()
         {
             if (enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypointState == WaypointState.Moving &&
-                Vector3.Distance(transform.position, enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint) > 0.1f)
+                Vector3.Distance(transform.position, enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint) > 0.2f)
             {
                 if(_rigidbody.linearVelocity != _movementDirection * _currentMovementSpeed)
                 {
@@ -264,7 +264,7 @@ namespace Dante.Agents
                 }
             }
             else if (enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypointState == WaypointState.Moving &&
-                Vector3.Distance(transform.position, enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint) <= 0.1f)
+                Vector3.Distance(transform.position, enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_currentWaypointIndex].waypoint) <= 0.2f)
             {
                 if (_currentWaypointIndex +1 >= enemyNPC_Behaviours.moveWaypoints_SO.waypoints.Length)
                 {
@@ -322,6 +322,7 @@ namespace Dante.Agents
         protected void InitializeStopSubStateMachine()
         {
             _fsm.StateMechanic(StateMechanics.STOP);
+            _rigidbody.linearVelocity = Vector3.zero;
         }
 
         protected void ExecutingStopSubStateMachine()

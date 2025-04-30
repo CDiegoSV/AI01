@@ -45,7 +45,7 @@ namespace Dante.Agents
             {
                 playersAvatar = GameObject.FindFirstObjectByType<PlayersAvatar>();
             }
-            if(playersAvatar.GameManager == null)
+            if(playersAvatar != null && playersAvatar.GameManager == null)
             {
                 playersAvatar.GameManager = this;
             }
@@ -113,9 +113,9 @@ namespace Dante.Agents
 
         protected void PlayerReturnToSpawn()
         {
-            if (playersAvatar.gameObject.transform.position != playersAvatar.InitialPosition)
+            if (playersAvatar?.gameObject.transform.position != playersAvatar?.InitialPosition)
             {
-                playersAvatar.ReturnToInitialPosition();
+                playersAvatar?.ReturnToInitialPosition();
             }
         }
 

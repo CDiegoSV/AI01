@@ -46,7 +46,7 @@ namespace Dante.Dijkstra {
             }
             if (GUILayout.Button("Get Routes"))
             {
-                _dijkstra.GetRoutes(_dijkstra.InitialNode, _dijkstra.DestinyNode);
+                _dijkstra.GetRoutes();
             }
             if (GUILayout.Button("Clear All"))
             {

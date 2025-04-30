@@ -39,8 +39,8 @@ namespace Dante.Dijkstra {
         [Space(10)]
 
         [Header("Route Nodes")]
-        [SerializeField] protected Node _initialNode;
-        [SerializeField] protected Node _destinyNode;
+        [SerializeField] protected GameObject _initialNodeGameObject;
+        [SerializeField] protected GameObject _destinyNodeGameObject;
         [Space(10)]
         [Tooltip("Shows the route with the most distance eficient route to the destiny node.")]
         [SerializeField] protected Route _mostEficientRoute;
@@ -60,6 +60,8 @@ namespace Dante.Dijkstra {
         protected bool newConnection;
         protected bool obstacleDetected;
 
+        protected Node _initialNode;
+        protected Node _destinyNode;
 
         /// <summary>
         /// Horizontal distance of the nodes.
@@ -267,13 +269,31 @@ namespace Dante.Dijkstra {
         }
 
 
-        public void GetRoutes(Node initialNode, Node destinyNode)
+        public void GetRoutes()
         {
             ClearRoutes();
+
+            float initialLastCloseDistance = Mathf.Infinity;
+            float destinyLastCloseDistance = Mathf.Infinity;
+
+            foreach (Node node in nodeList)
+            {
+                if(Vector3.Distance(_initialNodeGameObject.transform.position, node.gameObject.transform.position) < initialLastCloseDistance && node.State == NodeState.ACTIVE)
+                {
+                    initialLastCloseDistance = Vector3.Distance(_initialNodeGameObject.transform.position, node.gameObject.transform.position);
+                    _initialNode = node;
+                }
+                if (Vector3.Distance(_destinyNodeGameObject.transform.position, node.gameObject.transform.position) < destinyLastCloseDistance && node.State == NodeState.ACTIVE)
+                {
+                    destinyLastCloseDistance = Vector3.Distance(_destinyNodeGameObject.transform.position, node.gameObject.transform.position);
+                    _destinyNode = node;
+                }
+            }
             Route newRoute = new Route();
             newRoute.routeNodes = new List<Node>();
-            initialNode.ExploreRoutes(newRoute, destinyNode, this, newRoute.distance);
+            _initialNode.ExploreRoutes(newRoute, _destinyNode, this, newRoute.distance);
             GetMostEficientRoutes();
+            SetRouteToTheAgent();
         }
 
 
@@ -405,17 +425,19 @@ namespace Dante.Dijkstra {
             {
                 node.ChangeColor(node.ActiveMaterial);
             }
+        }
 
-
+        protected void SetRouteToTheAgent()
+        {
             _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints = new Waypoints[_mostEficientRoute.routeNodes.Count + 1];
 
-            for(int i = 0; i < _mostEficientRoute.routeNodes.Count; i++)
+            for (int i = 0; i < _mostEficientRoute.routeNodes.Count; i++)
             {
                 _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[i].waypointState = WaypointState.Moving;
                 _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[i].waypoint = _mostEficientRoute.routeNodes[i].transform.position;
                 _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[i].speedMPS = 5f;
             }
-            _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_mostEficientRoute.routeNodes.Count].waypointState = WaypointState.Moving;
+            _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_mostEficientRoute.routeNodes.Count].waypointState = WaypointState.PauseWaypoint;
             _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_mostEficientRoute.routeNodes.Count].waypoint = _mostEficientRoute.routeNodes[0].transform.position;
             _gameManager.enemyNPCs[0].enemyNPC_Behaviours.moveWaypoints_SO.waypoints[_mostEficientRoute.routeNodes.Count].speedMPS = 0f;
         }
