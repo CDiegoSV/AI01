@@ -192,7 +192,7 @@ namespace Dante.Dijkstra {
                     //if (Mathf.Abs(dot - 1f) < 0.01f || Mathf.Abs(dot + 1f) < 0.01f)
                     if (dot < -0.8f)
                     {
-                        ReplaceConnection(a, b, node.connections[0], node.connections[1]);
+                        ReplaceConnection(a, b, node.connections[0], node.connections[1], false);
                         DestroyImmediate(node.gameObject);
                         nodeList[i] = null;
                     }
@@ -210,10 +210,11 @@ namespace Dante.Dijkstra {
                     {
                         for (int y = x + 1; y < neighbors.Count; y++)
                         {
+                            Node a = neighbors[x];
+                            Node b = neighbors[y];
                             if (neighbors[x].connections.Count == 8 && neighbors[y].connections.Count == 8)
                             {
-                                Node a = neighbors[x];
-                                Node b = neighbors[y];
+                                
 
                                 if (a.connections.Exists(c => GetOtherNode(c, a) == b)) continue;
 
@@ -225,11 +226,22 @@ namespace Dante.Dijkstra {
                                 b.connections.Add(newConn);
                                 connectionList.Add(newConn);
                             }
+
+                            Vector3 dirA = (a.transform.position - node.transform.position).normalized;
+                            Vector3 dirB = (b.transform.position - node.transform.position).normalized;
+                            float dot = Vector3.Dot(dirA, dirB);
+
+                            //if (Mathf.Abs(dot - 1f) < 0.01f || Mathf.Abs(dot + 1f) < 0.01f)
+                            if (dot < -0.8f)
+                            {
+                                ReplaceConnection(a, b, node.connections[x], node.connections[y], true);
+                                nodeList[i] = null;
+                            }
                         }
                     }
 
                     foreach (Connection c in node.connections)
-                    {
+                    {                        
                         Node other = GetOtherNode(c, node);
                         other.connections.Remove(c);
                         connectionList.Remove(c);
@@ -366,7 +378,7 @@ namespace Dante.Dijkstra {
             return c.nodeA == center ? c.nodeB : c.nodeA;
         }
 
-        protected void ReplaceConnection(Node n1, Node n2, Connection oldA, Connection oldB)
+        protected void ReplaceConnection(Node n1, Node n2, Connection oldA, Connection oldB, bool keepConnections)
         {
             GameObject newObj = Instantiate(_connectionPrefab, transform.GetChild(1));
             Connection newConn = newObj.GetComponent<Connection>();
@@ -381,14 +393,18 @@ namespace Dante.Dijkstra {
             n2.connections.Remove(oldB);
             n2.connections.Add(newConn);
 
-            connectionList.Remove(oldA);
-            connectionList.Remove(oldB);
-            DestroyImmediate(oldA.gameObject);
-            DestroyImmediate(oldB.gameObject);
+            if (!keepConnections)
+            {
+                connectionList.Remove(oldA);
+                connectionList.Remove(oldB);
+                DestroyImmediate(oldA.gameObject);
+                DestroyImmediate(oldB.gameObject);
+            }
 
             connectionList.Add(newConn);
         }
 
+        
         protected void ClearRoutes()
         {
             routesList.Clear();
