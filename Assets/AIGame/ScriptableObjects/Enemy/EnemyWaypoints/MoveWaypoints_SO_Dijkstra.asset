@@ -14,26 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waypoints:
   - waypointState: 0
-    waypoint: {x: -29, y: 0, z: 1}
-    speedMPS: 5
+    waypoint: {x: -29, y: 0.01, z: 1}
+    speedMPS: 4
   - waypointState: 0
-    waypoint: {x: -29, y: 0, z: 6.6}
-    speedMPS: 5
+    waypoint: {x: -29, y: 0.01, z: 8}
+    speedMPS: 4
   - waypointState: 0
-    waypoint: {x: -29, y: 0, z: 12.2}
-    speedMPS: 5
+    waypoint: {x: -29, y: 0.01, z: 15}
+    speedMPS: 4
   - waypointState: 0
-    waypoint: {x: -29, y: 0, z: 17.8}
-    speedMPS: 5
+    waypoint: {x: -29, y: 0.01, z: 22}
+    speedMPS: 4
   - waypointState: 0
-    waypoint: {x: -29, y: 0, z: 29}
-    speedMPS: 5
+    waypoint: {x: -29, y: 0.01, z: 29}
+    speedMPS: 4
   - waypointState: 0
-    waypoint: {x: -17.8, y: 0, z: 29}
-    speedMPS: 5
+    waypoint: {x: -1, y: 0.01, z: 29}
+    speedMPS: 4
   - waypointState: 0
-    waypoint: {x: -12.2, y: 0, z: 23.4}
-    speedMPS: 5
+    waypoint: {x: -1, y: 0.01, z: 22}
+    speedMPS: 4
   - waypointState: 0
-    waypoint: {x: -29, y: 0, z: 1}
+    waypoint: {x: -8, y: 0.01, z: 22}
+    speedMPS: 4
+  - waypointState: 1
+    waypoint: {x: -29, y: 0.01, z: 1}
     speedMPS: 0
